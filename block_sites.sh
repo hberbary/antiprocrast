@@ -46,7 +46,7 @@ fi
 
 create_backup
 
-HOUR=$(date +%H)
+HOUR=$(date +%-H)
 
 START_HOUR=${START_HOUR:-9}
 END_HOUR=${END_HOUR:-18}
