@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # Define the websites and common subdomains to block or redirect
-SITES=("youtube.com" "reddit.com" "instagram.com" "globo.com" "uol.com.br")
+SITES=("youtube.com" "reddit.com" "instagram.com" "ge.globo.com" "g1.globo.com" "uol.com.br")
 SUBDOMAINS=("www" "m" "mobile")
 
 # Define the hosts entry
-REDIRECT=${REDIRECT_IP:-"127.0.0.1"}
+REDIRECT_IPV4=${REDIRECT_IP:-"127.0.0.1"}
+REDIRECT_IPV6=${REDIRECT_IP:-"::1"}
 
 # Define backup file
 BACKUP_FILE="/etc/hosts.bak"
@@ -33,12 +34,14 @@ is_holiday() {
 block_sites() {
     for site in "${SITES[@]}"; do
         if ! grep -q "$site" /etc/hosts; then
-            echo "$REDIRECT $site" | sudo tee -a /etc/hosts > /dev/null
+            echo "$REDIRECT_IPV4 $site" | sudo tee -a /etc/hosts > /dev/null
+            echo "$REDIRECT_IPV6 $site" | sudo tee -a /etc/hosts > /dev/null
         fi
         for subdomain in "${SUBDOMAINS[@]}"; do
             full_domain="$subdomain.$site"
             if ! grep -q "$full_domain" /etc/hosts; then
-                echo "$REDIRECT $full_domain" | sudo tee -a /etc/hosts > /dev/null
+                echo "$REDIRECT_IPV4 $full_domain" | sudo tee -a /etc/hosts > /dev/null
+                echo "$REDIRECT_IPV6 $full_domain" | sudo tee -a /etc/hosts > /dev/null
             fi
         done
     done
@@ -67,7 +70,7 @@ HOUR=$(date +%-H)
 
 # Define work hours (e.g., 9 AM to 6 PM)
 START_HOUR=${START_HOUR:-9}
-END_HOUR=${END_HOUR:-18}
+END_HOUR=${END_HOUR:-21}
 
 # Block or unblock sites based on current hour
 if [[ $HOUR -ge $START_HOUR && $HOUR -lt $END_HOUR ]]; then
